@@ -1,6 +1,4 @@
-# This function is the fuzzy CPCA clustering algorithm without noise cluster 
-# In case the MTS data is clean, or you don't need / want an additional cluster (noise cluster) 
-
+# This function is the fuzzy CPCA clustering algorithm, all functions are wrote in this file
 
 library(base)
 library(fungible)

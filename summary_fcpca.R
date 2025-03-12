@@ -188,75 +188,6 @@ compute_S <- function(reconstruction_error, projection_axes,n, k) {
 }
 
 
-
-
-compute_S_cov <- function(reconstruction_error, 
-                          weighted_covariances,
-                          n, 
-                          k) {
-  #
-  # 1) Numerator: total reconstruction error
-  #
-  numerator <-  reconstruction_error
-  
-  #
-  # 2) We'll define a helper function that measures distance between
-  #    two clusters' weighted covariance matrices for lag-1 and lag-2.
-  #
-  #    weighted_covariances$weighted_cross_cov_lag0_lag1[[c]] is the lag-1
-  #    weighted covariance for cluster c,
-  #    weighted_covariances$weighted_cross_cov_lag0_lag2[[c]] is the lag-2
-  #    weighted covariance for cluster c.
-  #
-  cov_dist <- function(cluster_c, cluster_m) {
-    cov_c_lag1 <- weighted_covariances$weighted_cross_cov_lag0_lag1[[cluster_c]]
-    cov_c_lag2 <- weighted_covariances$weighted_cross_cov_lag0_lag2[[cluster_c]]
-    
-    cov_m_lag1 <- weighted_covariances$weighted_cross_cov_lag0_lag1[[cluster_m]]
-    cov_m_lag2 <- weighted_covariances$weighted_cross_cov_lag0_lag2[[cluster_m]]
-    
-    # Frobenius norm of the difference for lag-1
-    d_lag1 <- norm(cov_c_lag1 - cov_m_lag1, type = "F")
-    
-    # Frobenius norm of the difference for lag-2
-    d_lag2 <- norm(cov_c_lag2 - cov_m_lag2, type = "F")
-    
-    # Sum them (or you could average, etc.)
-    return(d_lag1 + d_lag2)
-  }
-  
-  #
-  # 3) Find the minimum pairwise distance among all clusters
-  #
-  min_dist <- Inf
-  for (c_idx in seq_len(k)) {
-    for (m_idx in seq_len(k)) {
-      if (m_idx > c_idx) {
-        dist_val <- cov_dist(c_idx, m_idx)
-        if (dist_val < min_dist) {
-          min_dist <- dist_val
-        }
-      }
-    }
-  }
-  
-  #
-  # 4) Denominator = smallest distance among the cluster covariance matrices
-  #
-  denominator <- min_dist
-  
-  #
-  # 5) Final S value
-  #    Multiply denominator by n if you want to replicate Xie-Beni style,
-  #    or omit if you prefer not to scale by n.
-  #
-  S_value <- numerator / (n * denominator)
-  
-  return(S_value)
-}
-
-
-
 # this is the main function for the fuzzy CPCA method  with 3 times replications
 # and pre-defined number of principal components, the final result is with the lowest weighted sum reconstruction error 
 
@@ -405,7 +336,6 @@ fcpca <- function(ts, k, m = 1.5, startU = NULL, conver = 1e-3, maxit = 1000, ve
         reconstruction_error_matrix = total_reconstruction_error,
         hard_cluster = max.col(U),
         weighted_covariances = weighted_covariances,
-        # S = compute_S_cov(current_error,weighted_covariances,n,k)
         S = compute_S(current_error,projection_axes,n,k)
       )
     }

@@ -20,12 +20,11 @@ str(EEGsample)
 label <- data$substate
 
 
-
-
 one_sub <- data$subindex
 
+# Here, we only provide the fuzzy clustering for subject 11, but you can just change the subject_of_interest below from 1 to 11 to scrutinize other subjects' results.
 
-subject_of_interest <- 3
+subject_of_interest <- 11
 
 # 1. Identify which samples belong to this subject
 idx <- which(data$subindex == subject_of_interest)
@@ -43,18 +42,7 @@ unique(data$subindex[idx])  # Should only show the subject_of_interest
 
 a <- fcpca(EEGsample_subject,2,1.1,replicates = 1)
 true_accuracy(a$hard_cluster,label_subject)  # 0.9336283
-a$S  # 447.5886
-# 371.9272
-# 2, 5, 9, 10, 11
-#  568.5939.    0.8253012
-
-# low_accuracy idx
-#  1, 3,4,6,7,8
-
-
-b <- fcpca(EEGsample_subject,2,1.9,replicates = 1)
-true_accuracy(b$hard_cluster,label_subject)  # 0.9336283
-b$S 
+a$S 
 
 
 
@@ -83,171 +71,7 @@ true_accuracy(e$U,label_subject)
 
 
 
-
-
-b <- fcpca(EEGsample_subject,2,1.5)
-true_accuracy(b$hard_cluster,label_subject)
-b$S
-
-
-
-
-
-
-
-
-
-# The plot for the fuzziness paramter against CVI and RI 
-
-library(ggplot2)
-
-# Suppose 'results_df' has columns: m, S, accuracy
-# 1. Compute the log of S (representing CVI)
-results_df$log_S <- log(results_df$S)
-
-# 2. Normalize both log_S and accuracy to [0,1]
-logS_min <- min(results_df$log_S)
-logS_max <- max(results_df$log_S)
-results_df$norm_logS <- (results_df$log_S - logS_min) / (logS_max - logS_min)
-
-acc_min <- min(results_df$accuracy)
-acc_max <- max(results_df$accuracy)
-results_df$norm_acc <- (results_df$accuracy - acc_min) / (acc_max - acc_min)
-
-ggplot(results_df, aes(x = m)) +
-  
-  # --- log(CVI) trend ---
-  geom_line(aes(y = norm_logS, color = "log(CVI)"), size = 1) +
-  geom_point(aes(y = norm_logS, color = "log(CVI)"), size = 3) +
-  # Annotate the true S values (just the numeric value)
-  geom_text(
-    aes(
-      y = norm_logS, 
-      label = round(S, 2),   # <--- Only numeric
-      color = "log(CVI)"
-    ),
-    vjust = -1, size = 4
-  ) +
-  
-  # --- RI (accuracy) trend ---
-  geom_line(aes(y = norm_acc, color = "RI"), size = 1) +
-  geom_point(aes(y = norm_acc, color = "RI"), size = 3) +
-  # Annotate the true accuracy values (just the numeric value)
-  geom_text(
-    aes(
-      y = norm_acc, 
-      label = round(accuracy, 2),  # <--- Only numeric
-      color = "RI"
-    ),
-    vjust = 1.5, size = 4
-  ) +
-  
-  # --- Labels and minimal theme ---
-  labs(
-    x = "Fuzziness Parameter (m)",
-    y = NULL,
-    color = "Metric"  # Legend title
-  ) +
-  theme_minimal(base_size = 14) +
-  
-  # Remove y-axis text, ticks, and grid lines
-  theme(
-    axis.text.y = element_blank(),
-    axis.ticks.y = element_blank(),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank()
-  ) +
-  
-  # Ensure x-axis has ticks at each m-value
-  scale_x_continuous(breaks = results_df$m) +
-  
-  # Use a colorblind-friendly palette for the lines, points, and labels
-  scale_color_manual(
-    values = c(
-      "log(CVI)" = "#0072B2",  # A nice shade of blue
-      "RI"       = "#D55E00"   # A contrasting shade of orange
-    )
-  )
-
-
-
-
-
-
-
-# plot of the membership matrix 
-
-library(tidyr)
-library(ggplot2)
-
-# 1. Convert your membership matrix to a data frame
-U_df <- as.data.frame(a$membership_matrix)
-
-# 2. Create a 'sample' identifier
-U_df$sample <- factor(seq_len(nrow(U_df)))  # 1 to 226 as factors
-
-# 3. Reshape data to "long" format
-U_long <- gather(U_df, key = "group", value = "membership", -sample)
-
-# 4. Rename factor levels
-U_long$group <- factor(U_long$group,
-                       levels = c("V1", "V2"), 
-                       labels = c("alert state", "drowsy state"))
-
-# 5. Plot as stacked bars with custom colors and minimal gray
-ggplot(U_long, aes(x = sample, y = membership, fill = group)) +
-  geom_bar(stat = "identity", position = "stack") +
-  labs(x = "Sample", y = "Membership Degree") +
-  
-  scale_fill_manual(values = c(
-    "drowsy state" = "lightpink",  # Assign the old "alert" color here
-    "alert state"  = "lightcyan3"    # Assign the old "drowsy" color here
-  )) + # a complementary blue
-  
-  # Minimal theme + remove additional grid lines / background
-  theme_minimal(base_size = 12) +
-  theme(
-    axis.text.x       = element_blank(),
-    axis.ticks.x      = element_blank(),
-    panel.grid.major  = element_blank(),
-    panel.grid.minor  = element_blank(),
-    panel.background  = element_blank(),
-    legend.background = element_blank(),
-    legend.key        = element_blank()
-  )
-
-
-
-
-
-
-
-
-
-
-
-
-# object 1 
-subject_of_interest <- 1
-
-# 1. Identify which samples belong to this subject
-idx <- which(data$subindex == subject_of_interest)
-
-# 2. Extract those samples from the EEGsample list
-EEGsample_subject <- EEGsample[idx]
-
-# 3. Extract the corresponding labels (if needed)
-label_subject <- data$substate[idx]
-
-# (Optional) Check the results
-length(EEGsample_subject)
-length(label_subject)
-unique(data$subindex[idx])  # Should only show the subject_of_interest
-
-
-a <- fcpca(EEGsample_subject,2,1.2)
-a$hard_cluster
-true_accuracy(a$hard_cluster,label_subject)  
+# The way to generate the plots m versus CVIs and RIs
 
 # Define the range of m values you want to test
 m_values <- seq(1.1, 2.2, by = 0.1)
@@ -344,7 +168,7 @@ ggplot(results_df, aes(x = m)) +
 
 
 
-
+# plots for the membership matrix 
 library(tidyr)
 library(ggplot2)
 

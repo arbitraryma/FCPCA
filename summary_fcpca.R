@@ -312,27 +312,11 @@ fcpca <- function(ts, k, m = 1.5, startU = NULL, conver = 1e-3, maxit = 1000, ve
   svd_result_lag01 <- svd(weighted_covariances$weighted_cross_cov_lag0_lag1[[1]])
   n_components_lag01 <- which(cumsum(svd_result_lag01$d) / sum(svd_result_lag01$d) >= 0.95)[1]
   
-  # cumulative_variance <- cumsum(svd_result_lag01$d) / sum(svd_result_lag01$d)
-  # eigenvalue_gaps <- diff(cumulative_variance)
-  
-  # Choose the number of PCs where the gap is small (e.g., <0.01)
-  # gap_threshold <- 0.001
-  # n_components_lag01 <- which(eigenvalue_gaps < gap_threshold)[1] + 1
-  
   
   
   svd_result_lag02 <- svd(weighted_covariances$weighted_cross_cov_lag0_lag2[[1]])
   n_components_lag02 <- which(cumsum(svd_result_lag02$d) / sum(svd_result_lag02$d) >= 0.95)[1]
-  
-  # cumulative_variance2 <- cumsum(svd_result_lag02$d) / sum(svd_result_lag02$d)
-  # eigenvalue_gaps2 <- diff(cumulative_variance2)
-  
-  # Choose the number of PCs where the gap is small (e.g., <0.01)
-  # gap_threshold <- 0.001
-  # n_components_lag02 <- which(eigenvalue_gaps2 < gap_threshold)[1] + 1
-  
-  
-  
+    
   
   # Repeat clustering multiple times
   best_result <- NULL

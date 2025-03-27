@@ -150,10 +150,10 @@ for (j in 1:length(f)) {
   n <- drop(generate_invertible_matrix_optimized(e))
   w <- generate_stationary_matrix(e)
   Sigma <- diag(e)
-  Sigma_VAR <- diag(e) * 0.1  # Smaller variance for VAR
-  Sigma_VMA <- diag(e) * 0.5  # Larger variance for VMA
+  Sigma_VAR <- diag(e)# * 0.1  # Smaller variance for VAR
+  Sigma_VMA <- diag(e)# * 0.5  # Larger variance for VMA
   
-  Sigma_VARMA <- diag(e) * 0.3 
+  Sigma_VARMA <- diag(e) #* 0.3 
   
  #   lengths1 <- sample(200:600, 10)
  #   lengths2 <- sample(200:600, 10)
@@ -273,12 +273,9 @@ for (j in 1:length(f)) {
     calculate_accuracy(vp62, labels )
     
     
-    
-    
-    
-    
-    
+  
     # here we perform the FCMD clustering method, using the 'dtw_basic" to make it faster 
+  
     fcmd1 <- tsclust(series  = ts, type = "fuzzy",  k  = 2,  distance  = "dtw_basic", centroid  = "fcmd",              
       trace     = FALSE , fuzzy_control( fuzziness = 1.2))
     fcmd2 <- tsclust(series  = ts, type = "fuzzy",  k  = 2,  distance  = "dtw_basic", centroid  = "fcmd",              

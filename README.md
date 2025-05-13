@@ -1,5 +1,5 @@
 # FCPCA
-This repository provides the code for the fuzzy MTS clustering algorithm based on common principal component analysis (CPCA), which we name FCPCA.
+This repository provides the code for the fuzzy clustering of high-dimensional time series based on common principal component analysis, which we name FCPCA.
 
 To use this algorithm, please first run the related functions. You can find all the functions in the 'summary_fcpca' file. 
 Some examples we used in the paper are also presented.

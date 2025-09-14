@@ -1,7 +1,4 @@
 
-# This function is the fuzzy CPCA clustering algorithm without noise cluster 
-# In case the MTS data is clean, or you don't need / want an additional cluster (noise cluster) 
-
 
 library(base)
 library(fungible)
@@ -206,7 +203,7 @@ compute_S <- function(reconstruction_error, projection_axes,n, k) {
 ## FCPCA with Auto/Grid Search over k and m (select by lowest S)
 ###############################################################################
 
-# Core single-run FCPCA (standard L2, no exponential), returns S_value via compute_S_cov
+# Core single-run FCPCA (standard L2, no exponential), returns S_value via compute_S 
 .fcpca_run_once <- function(ts,
                             k,
                             m = 1.5,
@@ -288,7 +285,7 @@ compute_S <- function(reconstruction_error, projection_axes,n, k) {
   }
   
   final_wcov <- compute_weighted_cross_cov(U, m, sigma, sigma2)
-  S_val <- compute_S_cov(sum(U^m * R), final_wcov, n, k)
+  S_val <- compute_S(sum(U^m * R), final_wcov, n, k)
   
   list(
     membership_matrix           = U,
